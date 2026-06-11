@@ -125,6 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        tooltip: 'Kembali',
                       ),
                       const SizedBox(width: 48),
                     ],
@@ -189,38 +190,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          TextFormField(
-                            controller: _namaController,
-                            style: TextStyle(color: AppTheme.textPrimary),
-                            decoration: InputDecoration(
-                              labelText: 'Nama Lengkap',
-                              labelStyle: TextStyle(
-                                color: AppTheme.textSecondary,
+                          Semantics(
+                            label: 'Input Nama Lengkap',
+                            textField: true,
+                            child: TextFormField(
+                              controller: _namaController,
+                              style: TextStyle(color: AppTheme.textPrimary),
+                              decoration: InputDecoration(
+                                labelText: 'Nama Lengkap',
+                                labelStyle: TextStyle(
+                                  color: AppTheme.textSecondary,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.badge_outlined,
+                                  color: AppTheme.textSecondary,
+                                ),
                               ),
-                              prefixIcon: Icon(
-                                Icons.badge_outlined,
-                                color: AppTheme.textSecondary,
-                              ),
+                              validator: RegisterValidator.validateNama,
                             ),
-                            validator: RegisterValidator.validateNama,
                           ),
 
                           const SizedBox(height: 16),
 
-                          TextFormField(
-                            controller: _usernameController,
-                            style: TextStyle(color: AppTheme.textPrimary),
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              labelStyle: TextStyle(
-                                color: AppTheme.textSecondary,
+                          Semantics(
+                            label: 'Input Username Register',
+                            textField: true,
+                            child: TextFormField(
+                              controller: _usernameController,
+                              style: TextStyle(color: AppTheme.textPrimary),
+                              decoration: InputDecoration(
+                                labelText: 'Username',
+                                labelStyle: TextStyle(
+                                  color: AppTheme.textSecondary,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.person_outline,
+                                  color: AppTheme.textSecondary,
+                                ),
                               ),
-                              prefixIcon: Icon(
-                                Icons.person_outline,
-                                color: AppTheme.textSecondary,
-                              ),
+                              validator: RegisterValidator.validateUsername,
                             ),
-                            validator: RegisterValidator.validateUsername,
                           ),
 
                           const SizedBox(height: 16),
@@ -293,27 +302,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           SizedBox(
                             width: double.infinity,
                             height: 50,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _register,
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
+                            child: Semantics(
+                              label: 'Tombol Daftar',
+                              button: true,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _register,
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Daftar',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    )
-                                  : const Text(
-                                      'Daftar',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                              ),
                             ),
                           ),
                         ],
@@ -328,22 +341,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         'Sudah punya akun? ',
                         style: TextStyle(color: Colors.white.withOpacity(0.9)),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
+                      Semantics(
+                        label: 'Link Login',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.white,
                             ),
-                          );
-                        },
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.white,
                           ),
                         ),
                       ),

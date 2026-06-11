@@ -28,6 +28,8 @@ class AuthManager extends ChangeNotifier {
   String? get userName => _user?['nama'];
   String? get userUsername => _user?['username'];
   String? get userFoto => _user?['foto'];
+  String? get userRole => _user?['role'];
+  bool get isAdmin => _user?['role'] == 'admin';
 
 
   Future<void> init() async {

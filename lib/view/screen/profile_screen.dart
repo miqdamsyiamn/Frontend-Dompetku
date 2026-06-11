@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '/utils/app_theme.dart';
@@ -19,7 +19,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = false;
   UserModel? _profile;
-  File? _selectedImage;
+  Uint8List? _selectedImageBytes;
+  String? _selectedImageName;
   bool _isEditing = false;
 
   late TextEditingController _namaController;
@@ -59,24 +60,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
     if (result == null) return;
 
     final file = result.files.first;
 
-    if (file.extension == 'png' ||
-        file.extension == 'jpg' ||
-        file.extension == 'jpeg' ||
-        file.extension == 'gif' ||
-        file.extension == 'webp') {
+    if (file.bytes != null) {
       setState(() {
-        _selectedImage = File(file.path!);
+        _selectedImageBytes = file.bytes;
+        _selectedImageName = file.name;
         _isEditing = true;
       });
       displaySnackbar('Foto dipilih. Klik Simpan untuk menyimpan.');
     } else {
       displaySnackbar(
-        'Pilih file gambar (png, jpg, jpeg, gif, webp)',
+        'Gagal membaca file gambar',
         isError: true,
       );
     }
@@ -93,7 +94,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final userModel = await ApiService().updateProfile(
         nama: _namaController.text,
-        filePath: _selectedImage?.path,
+        fileBytes: _selectedImageBytes,
+        fileName: _selectedImageName,
       );
 
       await AuthManager().saveUser(userModel.toJson());
@@ -101,7 +103,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       displaySnackbar('Profil berhasil disimpan');
       setState(() {
         _isEditing = false;
-        _selectedImage = null;
+        _selectedImageBytes = null;
+        _selectedImageName = null;
         _profile = userModel;
       });
     } on ApiException catch (e) {
@@ -115,7 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isEditing = false;
       _namaController.text = _profile?.nama ?? '';
-      _selectedImage = null;
+      _selectedImageBytes = null;
+      _selectedImageName = null;
     });
   }
 
@@ -193,9 +197,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         color: Colors.white,
                                         width: 3,
                                       ),
-                                      image: _selectedImage != null
+                                      image: _selectedImageBytes != null
                                           ? DecorationImage(
-                                              image: FileImage(_selectedImage!),
+                                              image: MemoryImage(_selectedImageBytes!),
                                               fit: BoxFit.cover,
                                             )
                                           : (user?.foto != null &&
@@ -209,7 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 : null),
                                     ),
                                     child:
-                                        _selectedImage == null &&
+                                        _selectedImageBytes == null &&
                                             (user?.foto == null ||
                                                 user!.foto!.isEmpty)
                                         ? Icon(
@@ -511,31 +515,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     Color? color,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: (color ?? AppTheme.primary).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: color ?? AppTheme.primary, size: 20),
+    return Semantics(
+      label: 'Menu $title',
+      button: true,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.border),
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: color ?? AppTheme.textPrimary,
+        child: ListTile(
+          onTap: onTap,
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: (color ?? AppTheme.primary).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color ?? AppTheme.primary, size: 20),
           ),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: color ?? AppTheme.textPrimary,
+            ),
+          ),
+          trailing: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
         ),
-        trailing: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
       ),
     );
   }
@@ -571,24 +579,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppTheme.border,
-                        borderRadius: BorderRadius.circular(2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Ganti Password',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Ganti Password',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Icons.close, color: AppTheme.textSecondary),
+                        tooltip: 'Tutup',
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24),
                   _buildPasswordField(

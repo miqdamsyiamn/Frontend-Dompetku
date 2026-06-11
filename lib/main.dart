@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'view/screen/welcome_screen.dart';
@@ -9,6 +10,8 @@ import 'services/auth_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Enable semantics for web accessibility & test automation (Katalon/Selenium)
+  SemanticsBinding.instance.ensureSemantics();
   await initializeDateFormatting('id_ID', null);
   await AuthManager().init();
   runApp(const MyApp());

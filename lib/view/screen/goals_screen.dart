@@ -92,10 +92,14 @@ class GoalsScreenState extends State<GoalsScreen> {
                       },
                     ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddGoalDialog(),
-        backgroundColor: AppTheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: Semantics(
+        label: 'Tombol Tambah Goal',
+        button: true,
+        child: FloatingActionButton(
+          onPressed: () => _showAddGoalDialog(),
+          backgroundColor: AppTheme.primary,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
@@ -258,33 +262,41 @@ class GoalsScreenState extends State<GoalsScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showAddProgressDialog(goal),
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Tabung'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.success,
-                      side: BorderSide(color: AppTheme.success),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Semantics(
+                    label: 'Tombol Tabung ${goal.nama}',
+                    button: true,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showAddProgressDialog(goal),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text('Tabung'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.success,
+                        side: BorderSide(color: AppTheme.success),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: goal.currentAmount > 0
-                        ? () => _showWithdrawDialog(goal)
-                        : null,
-                    icon: const Icon(Icons.remove, size: 18),
-                    label: const Text('Tarik'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.danger,
-                      side: BorderSide(
-                        color: goal.currentAmount > 0
-                            ? AppTheme.danger
-                            : AppTheme.border,
+                  child: Semantics(
+                    label: 'Tombol Tarik ${goal.nama}',
+                    button: true,
+                    child: OutlinedButton.icon(
+                      onPressed: goal.currentAmount > 0
+                          ? () => _showWithdrawDialog(goal)
+                          : null,
+                      icon: const Icon(Icons.remove, size: 18),
+                      label: const Text('Tarik'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.danger,
+                        side: BorderSide(
+                          color: goal.currentAmount > 0
+                              ? AppTheme.danger
+                              : AppTheme.border,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                   ),
                 ),
@@ -311,17 +323,25 @@ class GoalsScreenState extends State<GoalsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.border,
-                  borderRadius: BorderRadius.circular(2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Detail Goal',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
-              ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(Icons.close, color: AppTheme.textSecondary),
+                  tooltip: 'Tutup',
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Container(
@@ -497,24 +517,23 @@ class GoalsScreenState extends State<GoalsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppTheme.border,
-                      borderRadius: BorderRadius.circular(2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isEdit ? 'Edit Goal' : 'Tambah Goal Baru',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  isEdit ? 'Edit Goal' : 'Tambah Goal Baru',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.close, color: AppTheme.textSecondary),
+                      tooltip: 'Tutup',
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -640,24 +659,23 @@ class GoalsScreenState extends State<GoalsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppTheme.border,
-                      borderRadius: BorderRadius.circular(2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tambah Tabungan',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Tambah Tabungan',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.close, color: AppTheme.textSecondary),
+                      tooltip: 'Tutup',
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -770,24 +788,23 @@ class GoalsScreenState extends State<GoalsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppTheme.border,
-                      borderRadius: BorderRadius.circular(2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tarik Dana',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Tarik Dana',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.close, color: AppTheme.textSecondary),
+                      tooltip: 'Tutup',
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(

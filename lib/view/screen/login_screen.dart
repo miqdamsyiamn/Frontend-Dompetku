@@ -117,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        tooltip: 'Kembali',
                       ),
                       const SizedBox(width: 48),
                     ],
@@ -186,20 +187,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          TextFormField(
-                            controller: _usernameController,
-                            style: TextStyle(color: AppTheme.textPrimary),
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              labelStyle: TextStyle(
-                                color: AppTheme.textSecondary,
+                          Semantics(
+                            label: 'Input Username Login',
+                            textField: true,
+                            child: TextFormField(
+                              controller: _usernameController,
+                              style: TextStyle(color: AppTheme.textPrimary),
+                              decoration: InputDecoration(
+                                labelText: 'Username',
+                                labelStyle: TextStyle(
+                                  color: AppTheme.textSecondary,
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.person_outline,
+                                  color: AppTheme.textSecondary,
+                                ),
                               ),
-                              prefixIcon: Icon(
-                                Icons.person_outline,
-                                color: AppTheme.textSecondary,
-                              ),
+                              validator: LoginValidator.validateUsername,
                             ),
-                            validator: LoginValidator.validateUsername,
                           ),
 
                           const SizedBox(height: 16),
@@ -239,32 +244,36 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(
                             width: double.infinity,
                             height: 54,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _login,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
+                            child: Semantics(
+                              label: 'Tombol Login Submit',
+                              button: true,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _login,
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                 ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Login',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
                             ),
                           ),
                         ],
@@ -281,22 +290,26 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Belum punya akun? ',
                         style: TextStyle(color: Colors.white.withOpacity(0.9)),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterScreen(),
+                      Semantics(
+                        label: 'Link Daftar Akun',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Daftar',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.white,
                             ),
-                          );
-                        },
-                        child: const Text(
-                          'Daftar',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.white,
                           ),
                         ),
                       ),

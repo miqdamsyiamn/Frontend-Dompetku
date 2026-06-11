@@ -130,15 +130,16 @@ class ApiService {
   /// Update user profile
   Future<UserModel> updateProfile({
     required String nama,
-    String? filePath,
+    List<int>? fileBytes,
+    String? fileName,
   }) async {
     try {
       final formData = FormData.fromMap({
         'nama': nama,
-        if (filePath != null)
-          'foto': await MultipartFile.fromFile(
-            filePath,
-            filename: filePath.split('/').last,
+        if (fileBytes != null && fileName != null)
+          'foto': MultipartFile.fromBytes(
+            fileBytes,
+            filename: fileName,
           ),
       });
 
@@ -352,6 +353,108 @@ class ApiService {
       final data = _handleResponse(response);
       final list = (data['categories'] as List?) ?? [];
       return list.map((e) => e.toString()).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  // ========== ADMIN - USER MANAGEMENT ==========
+
+  /// Admin - Get all users (with pagination, filter role, search)
+  Future<AdminUsersResponse> adminGetUsers({
+    int page = 1,
+    int limit = 10,
+    String? role,
+    String? search,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{
+        'page': page,
+        'limit': limit,
+      };
+      if (role != null && role.isNotEmpty) {
+        queryParams['role'] = role;
+      }
+      if (search != null && search.isNotEmpty) {
+        queryParams['search'] = search;
+      }
+
+      final response = await _dio.get(
+        '/api/admin/users',
+        queryParameters: queryParams,
+      );
+      return AdminUsersResponse.fromJson(_handleResponse(response));
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Admin - Get user by ID
+  Future<UserModel> adminGetUserById(String id) async {
+    try {
+      final response = await _dio.get('/api/admin/users/$id');
+      final data = _handleResponse(response);
+      return UserModel.fromJson(data['user'] ?? data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Admin - Create new user
+  Future<UserModel> adminCreateUser({
+    required String nama,
+    required String username,
+    required String password,
+    required String role,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/api/admin/users',
+        data: {
+          'nama': nama,
+          'username': username,
+          'password': password,
+          'role': role,
+        },
+      );
+      final data = _handleResponse(response);
+      return UserModel.fromJson(data['user'] ?? data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Admin - Update user
+  Future<UserModel> adminUpdateUser(
+    String id, {
+    String? nama,
+    String? username,
+    String? role,
+    String? password,
+  }) async {
+    try {
+      final updateData = <String, dynamic>{};
+      if (nama != null && nama.isNotEmpty) updateData['nama'] = nama;
+      if (username != null && username.isNotEmpty) updateData['username'] = username;
+      if (role != null && role.isNotEmpty) updateData['role'] = role;
+      if (password != null && password.isNotEmpty) updateData['password'] = password;
+
+      final response = await _dio.put(
+        '/api/admin/users/$id',
+        data: updateData,
+      );
+      final data = _handleResponse(response);
+      return UserModel.fromJson(data['user'] ?? data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Admin - Delete user
+  Future<Map<String, dynamic>> adminDeleteUser(String id) async {
+    try {
+      final response = await _dio.delete('/api/admin/users/$id');
+      return _handleResponse(response);
     } on DioException catch (e) {
       throw _handleError(e);
     }
