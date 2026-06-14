@@ -6,6 +6,7 @@ import '/utils/app_theme.dart';
 import '/services/api_services.dart';
 import '/services/auth_manager.dart';
 import '/model/user_model.dart';
+import 'leaderboard_screen.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -14,7 +15,66 @@ class UserManagementScreen extends StatefulWidget {
   State<UserManagementScreen> createState() => _UserManagementScreenState();
 }
 
-class _UserManagementScreenState extends State<UserManagementScreen> {
+class _UserManagementScreenState extends State<UserManagementScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.background,
+      appBar: AppBar(
+        backgroundColor: AppTheme.primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Admin Panel'),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          indicatorWeight: 3,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white.withOpacity(0.6),
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
+          tabs: const [
+            Tab(icon: Icon(Icons.people, size: 20), text: 'Manajemen User'),
+            Tab(icon: Icon(Icons.leaderboard, size: 20), text: 'Leaderboard'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          _UserListContent(),
+          LeaderboardScreen(),
+        ],
+      ),
+    );
+  }
+}
+
+// ========== TAB 1: User Management Content ==========
+
+class _UserListContent extends StatefulWidget {
+  const _UserListContent();
+
+  @override
+  State<_UserListContent> createState() => _UserListContentState();
+}
+
+class _UserListContentState extends State<_UserListContent> {
   bool _isLoading = false;
   List<UserModel> _users = [];
   int _totalUsers = 0;
@@ -91,92 +151,72 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       backgroundColor: AppTheme.background,
       body: Column(
         children: [
-          // Header
+          // Search bar
           Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppTheme.gradient,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            color: AppTheme.background,
+            child: Column(
+              children: [
+                // Search + refresh row
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.border),
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          onSubmitted: _onSearch,
+                          style: TextStyle(color: AppTheme.textPrimary),
+                          decoration: InputDecoration(
+                            hintText: 'Cari nama atau username...',
+                            prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: Icon(Icons.clear, color: AppTheme.textSecondary),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      _onSearch('');
+                                    },
+                                  )
+                                : null,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           ),
-                          child: const Icon(Icons.admin_panel_settings, color: Colors.white, size: 24),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Manajemen User', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-                              Text('Total: $_totalUsers user', style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.85))),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.refresh, color: Colors.white),
-                          onPressed: _loadUsers,
-                        ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    // Search
+                    const SizedBox(width: 8),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.surface,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.border),
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        onSubmitted: _onSearch,
-                        style: TextStyle(color: AppTheme.textPrimary),
-                        decoration: InputDecoration(
-                          hintText: 'Cari nama atau username...',
-                          prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
-                          suffixIcon: _searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: Icon(Icons.clear, color: AppTheme.textSecondary),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    _onSearch('');
-                                  },
-                                )
-                              : null,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        ),
+                      child: IconButton(
+                        icon: Icon(Icons.refresh, color: AppTheme.primary),
+                        onPressed: _loadUsers,
+                        tooltip: 'Refresh',
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
-          // Filter chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                _buildFilterChip('Semua', null),
-                const SizedBox(width: 8),
-                _buildFilterChip('User', 'user'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Admin', 'admin'),
+                const SizedBox(height: 8),
+                // Info + Filter
+                Row(
+                  children: [
+                    Text('Total: $_totalUsers user', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
+                    const Spacer(),
+                    _buildFilterChip('Semua', null),
+                    const SizedBox(width: 6),
+                    _buildFilterChip('User', 'user'),
+                    const SizedBox(width: 6),
+                    _buildFilterChip('Admin', 'admin'),
+                  ],
+                ),
               ],
             ),
           ),

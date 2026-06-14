@@ -4,6 +4,7 @@ import '/model/user_model.dart';
 import '/model/transaction_model.dart';
 import '/model/goal_model.dart';
 import '/model/summary_model.dart';
+import '/model/leaderboard_model.dart';
 
 class ApiService {
   // Base URL untuk API
@@ -445,6 +446,34 @@ class ApiService {
       );
       final data = _handleResponse(response);
       return UserModel.fromJson(data['user'] ?? data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Admin - Get leaderboard saldo user
+  Future<List<LeaderboardEntry>> adminGetLeaderboard() async {
+    try {
+      final response = await _dio.get('/api/admin/leaderboard');
+      final data = _handleResponse(response);
+      final list = (data['leaderboard'] as List?) ?? [];
+      return list.map((e) => LeaderboardEntry.fromJson(e)).toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Admin - Distribute dividend to top N users
+  Future<DividendResult> adminDistributeDividend({
+    double percentage = 5,
+    int topN = 3,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/api/admin/distribute-dividend',
+        data: {'percentage': percentage, 'top_n': topN},
+      );
+      return DividendResult.fromJson(_handleResponse(response));
     } on DioException catch (e) {
       throw _handleError(e);
     }
